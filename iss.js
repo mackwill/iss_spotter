@@ -28,11 +28,33 @@ const fetchCoordsByIP = (ip, callback) => {
     }
 
     if (response.statusCode !== 200) {
-      const msg = `Status Code: ${response.statusCode} when fetching IP. Responss: ${body}`;
+      const msg = `Status Code: ${response.statusCode} when fetching IP. Response: ${body}`;
       callback(Error(msg), null);
       return;
     }
     callback(error, { lat: body.data.latitude, lon: body.data.longitude });
   });
 };
-module.exports = { fetchMyIP, fetchCoordsByIP };
+
+const fetchISSFlyOverTimes = (coords, callback) => {
+  request(
+    `http://api.open-notify.org/iss-pass.json?lat=${coords.lat}&lon=${coords.lon}`,
+    (error, response, body) => {
+      if (error) {
+        callback(error, null);
+        return;
+      }
+
+      if (response.statusCode !== 200) {
+        callback(
+          Error(`Status code: ${response.statusCode} while fetching IP.`),
+          null
+        );
+        return;
+      }
+
+      callback(error, JSON.parse(body).response);
+    }
+  );
+};
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
