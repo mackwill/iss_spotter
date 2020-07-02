@@ -9,13 +9,30 @@ const fetchMyIP = (callback) => {
     }
 
     if (response.statusCode !== 200) {
-      const msg = `Status  Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
       callback(Error(msg), null);
       null;
     }
-    body = JSON.parse(body);
-    callback(error, body.ip);
+
+    callback(error, JSON.parse(body).ip);
   });
 };
 
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = (ip, callback) => {
+  request(`https://ipvigilante.com/${ip}`, (error, response, body) => {
+    body = JSON.parse(body);
+
+    if (error) {
+      callback(error, null);
+      return;
+    }
+
+    if (response.statusCode !== 200) {
+      const msg = `Status Code: ${response.statusCode} when fetching IP. Responss: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    callback(error, { lat: body.data.latitude, lon: body.data.longitude });
+  });
+};
+module.exports = { fetchMyIP, fetchCoordsByIP };
